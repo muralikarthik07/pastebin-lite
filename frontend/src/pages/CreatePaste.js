@@ -27,7 +27,11 @@ const CreatePaste = () => {
     if (maxViews) payload.max_views = parseInt(maxViews);
 
     try {
-      const response = await fetch(`${API_URL}/api/pastes`, {
+      // Construct URL carefully - NO SPACES!
+      const url = `${API_URL}/api/pastes`;
+      console.log('Posting to URL:', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +39,10 @@ const CreatePaste = () => {
         body: JSON.stringify(payload),
       });
 
+      console.log('Response status:', response.status);
+      
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create paste');
@@ -46,6 +53,7 @@ const CreatePaste = () => {
       setTtl('');
       setMaxViews('');
     } catch (err) {
+      console.error('Error:', err);
       setError(err.message);
     } finally {
       setLoading(false);

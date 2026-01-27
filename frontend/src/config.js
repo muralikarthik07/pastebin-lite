@@ -1,2 +1,4 @@
-// API Configuration - with .trim() to remove any spaces
-export const API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000').trim();
+// API Configuration
+// Remove any trailing spaces or slashes
+const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+export const API_URL = apiUrl.trim().replace(/\/+$/, '');
