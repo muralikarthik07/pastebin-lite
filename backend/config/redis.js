@@ -8,27 +8,46 @@ function initRedis() {
     return redis;
   }
 
-  // Check if we have a Redis URL (for production)
+  // Priority 1: REDIS_URL (Upstash format)
   if (process.env.REDIS_URL) {
+    console.log('Connecting to Redis using REDIS_URL...');
     redis = new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: 3,
+      enableReadyCheck: false,
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+  } 
+  // Priority 2: Upstash REST API (alternative format)
+  else if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    console.log('Connecting to Redis using Upstash REST API credentials...');
+    const host = process.env.KV_REST_API_URL
+      .replace('https://', '')
+      .replace('http://', '');
+    
+    redis = new Redis({
+      host: host,
+      port: 6379,
+      password: process.env.KV_REST_API_TOKEN,
+      tls: {
+        rejectUnauthorized: false
+      },
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: false,
       retryStrategy(times) {
         const delay = Math.min(times * 50, 2000);
         return delay;
       }
     });
-  } else if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    // Vercel KV (Upstash) configuration
-    redis = new Redis({
-      host: process.env.KV_REST_API_URL.replace('https://', '').replace('http://', ''),
-      port: 6379,
-      password: process.env.KV_REST_API_TOKEN,
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-  } else {
-    // Fallback to local Redis for development
+  } 
+  // Priority 3: Local Redis for development
+  else {
+    console.log('Connecting to local Redis...');
     redis = new Redis({
       host: process.env.REDIS_HOST || '127.0.0.1',
       port: process.env.REDIS_PORT || 6379,
@@ -40,11 +59,15 @@ function initRedis() {
   }
 
   redis.on('error', (err) => {
-    console.error('Redis error:', err);
+    console.error('Redis error:', err.message);
   });
 
   redis.on('connect', () => {
-    console.log('Redis connected successfully');
+    console.log('✅ Redis connected successfully');
+  });
+
+  redis.on('ready', () => {
+    console.log('✅ Redis ready to accept commands');
   });
 
   return redis;

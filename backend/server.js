@@ -5,29 +5,58 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// CORS configuration - MUST be before other middleware
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'https://pastebinlite-chi.vercel.app',
+      process.env.FRONTEND_URL
+    ];
+    
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-test-now-ms']
+};
 
-// Import routes
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const healthRouter = require('./routes/health');
 const pastesRouter = require('./routes/pastes');
 
-// Use routes
 app.use('/api', healthRouter);
 app.use('/api/pastes', pastesRouter);
 
-// 404 handler
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Pastebin API is running',
+    endpoints: {
+      health: '/api/healthz',
+      createPaste: 'POST /api/pastes',
+      getPaste: 'GET /api/pastes/:id'
+    }
+  });
+});
+
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('Error:', err.stack);
+  res.status(500).json({ error: 'Internal server error', message: err.message });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
 });
