@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import './CreatePaste.css';
 
+const API_BASE =
+  process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const CreatePaste = () => {
   const [content, setContent] = useState('');
   const [ttl, setTtl] = useState('');
@@ -26,19 +29,21 @@ const CreatePaste = () => {
     if (maxViews) payload.max_views = parseInt(maxViews);
 
     try {
-      const response = await fetch('/api/pastes', {
+      const response = await fetch(`${API_BASE}/api/pastes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
-
+      // 🔴 IMPORTANT: check before parsing JSON
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'Failed to create paste');
+      }
+      
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create paste');
-      }
 
       setResult(data);
       setContent('');
