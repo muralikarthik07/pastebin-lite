@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
+import { API_URL } from '../config';
 import './CreatePaste.css';
-
-const API_BASE =
-  process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const CreatePaste = () => {
   const [content, setContent] = useState('');
@@ -29,7 +27,7 @@ const CreatePaste = () => {
     if (maxViews) payload.max_views = parseInt(maxViews);
 
     try {
-      const response = await fetch(`${API_BASE}/api/pastes`, {
+      const response = await fetch(`${API_URL}/api/pastes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,13 +35,7 @@ const CreatePaste = () => {
         body: JSON.stringify(payload),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error("Invalid response from server");
-      }
-
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create paste');

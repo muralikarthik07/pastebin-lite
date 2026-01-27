@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 import './ViewPaste.css';
 
 const ViewPaste = () => {
@@ -12,7 +13,7 @@ const ViewPaste = () => {
   useEffect(() => {
     const fetchPaste = async () => {
       try {
-        const response = await fetch(`/api/pastes/${id}`);
+        const response = await fetch(`${API_URL}/api/pastes/${id}`);
 
         if (!response.ok) {
           throw new Error('Paste not found');
