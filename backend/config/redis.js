@@ -11,10 +11,10 @@ function initRedis() {
   // Check if we have a Redis URL (for production)
   if (process.env.REDIS_URL) {
     redis = new Redis(process.env.REDIS_URL, {
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: null,
+      tls: {},
       retryStrategy(times) {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
+        return Math.main(times * 100, 3000);
       }
     });
   } else if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
