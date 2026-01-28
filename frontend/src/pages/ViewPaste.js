@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { API_URL } from '../config';
 import './ViewPaste.css';
 
 const ViewPaste = () => {
@@ -13,7 +12,8 @@ const ViewPaste = () => {
   useEffect(() => {
     const fetchPaste = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/pastes/${id}`);
+        // HARDCODED URL - NO CONFIG FILE!
+        const response = await fetch(`https://pastebin-lite-apht.onrender.com/api/pastes/${id}`);
         const data = await response.json();
 
         if (!response.ok) {

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { API_URL } from '../config';
 import './CreatePaste.css';
 
 const CreatePaste = () => {
@@ -27,7 +26,8 @@ const CreatePaste = () => {
     if (maxViews) payload.max_views = parseInt(maxViews);
 
     try {
-      const response = await fetch(`${API_URL}/api/pastes`, {
+      // HARDCODED URL - NO CONFIG FILE!
+      const response = await fetch('https://pastebin-lite-apht.onrender.com/api/pastes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
