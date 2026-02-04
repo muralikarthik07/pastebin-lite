@@ -372,3 +372,6 @@ redis-cli ping  # Should return "PONG"
 # Check Redis is running
 redis-cli info server
 ```
+### Deployed link
+https://pastelink2.netlify.app/
+
